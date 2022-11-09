@@ -1,8 +1,6 @@
 import { ShapesQuery } from '../../services/ShapesService';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-// TODO duplicate ShapesDrawer
-
 export type Filters = {
   color?: Record<string, boolean>;
   form?: Record<string, boolean>;
@@ -54,7 +52,7 @@ export const shapeSlice = createSlice({
       }
     },
 
-    setParsedFilters(state, action: PayloadAction<string>) {
+    setParsedFilters(state, _action: PayloadAction<string>) {
       const result: ShapesQuery = {};
 
       if (state.filters.color) {

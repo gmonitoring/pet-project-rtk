@@ -12,12 +12,12 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ListItem from '@mui/material/ListItem';
 import SettingsSuggest from '@mui/icons-material/SettingsSuggest';
-import { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { Checkbox, FormControlLabel, Grid, Radio, RadioGroup, TextField } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
-import { shapesAPI, ShapesQuery } from '../../services/ShapesService';
+import { shapesAPI } from '../../services/ShapesService';
 import { AppBar, DrawerHeader, drawerWidth, Main } from './DrawerStyledComponents';
 import { useSearchParams } from 'react-router-dom';
 import { Square } from '../shapes/Square/Square';
@@ -66,16 +66,17 @@ export const ShapesDrawer: FC = () => {
     onSubmit: values => setColumns(Number(values.columns)),
   });
 
-  const { data: shapes, refetch, isLoading, error } = shapesAPI.useFetchShapesQuery(parsedFilters);
+  const { data: shapes, refetch, isLoading, error } = shapesAPI.useFetchShapesQuery(parsedFilters, { skip: skip });
 
   useEffect(() => {
     dispatch(setFilters(searchParams));
     dispatch(setParsedFilters(''));
+    setSkip(false);
   }, []);
 
   useEffect(() => {
     if (!skip) refetch();
-  }, [skip, searchParams, refetch]);
+  }, [searchParams, refetch]);
 
   const handleDarkChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const radioName = event.target.name as Filters['shade'];
@@ -247,7 +248,6 @@ export const ShapesDrawer: FC = () => {
               </form>
             </Box>
           </ListItem>
-          {JSON.stringify(skip)}
         </List>
       </Drawer>
       <Main open={open}>
