@@ -23,7 +23,8 @@ import { useSearchParams } from 'react-router-dom';
 import { Square } from '../shapes/Square/Square';
 import { Circle } from '../shapes/Circle/Circle';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
-import { Filters, shapeSlice } from '../../store/reducers/ShapeSlice';
+import { shapeSlice } from '../../store/reducers/ShapeSlice';
+import { isShapeShade } from '../../utils/typeGuards/shapeShade';
 
 // TODO Данный код для "верстки" SharpsDrawer и в файле DrawerStyledComponents по большей
 // части взят из документации MUI https://mui.com/material-ui/react-drawer/
@@ -78,14 +79,19 @@ export const ShapesDrawer: FC = () => {
     if (!skip) refetch();
   }, [skip, searchParams, refetch]);
 
+  const filtersUpdate = (): void => {
+    setSearchParams(searchParams);
+    dispatch(setFilters(searchParams));
+    dispatch(setParsedFilters(''));
+  };
+
   const handleDarkChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const radioName = event.target.name as Filters['shade'];
-    if (radioName) {
+    const radioName = event.target.name;
+
+    if (isShapeShade(radioName)) {
       searchParams.set('shade', radioName);
 
-      setSearchParams(searchParams);
-      dispatch(setFilters(searchParams));
-      dispatch(setParsedFilters(''));
+      filtersUpdate();
     }
   };
 
@@ -98,9 +104,7 @@ export const ShapesDrawer: FC = () => {
 
     forms.length ? searchParams.set('form', forms.join(',')) : searchParams.delete('form');
 
-    setSearchParams(searchParams);
-    dispatch(setFilters(searchParams));
-    dispatch(setParsedFilters(''));
+    filtersUpdate();
   };
 
   const handleColorCheck = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -113,9 +117,7 @@ export const ShapesDrawer: FC = () => {
 
     colors.length ? searchParams.set('color', colors.join(',')) : searchParams.delete('color');
 
-    setSearchParams(searchParams);
-    dispatch(setFilters(searchParams));
-    dispatch(setParsedFilters(''));
+    filtersUpdate();
   };
 
   return (

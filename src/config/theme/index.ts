@@ -12,7 +12,7 @@ declare module '@mui/material/styles' {
   }
 }
 
-const palette = {
+export const palette = {
   shapes: {
     red: '#E8106AFF',
     green: '#19AB8CFF',

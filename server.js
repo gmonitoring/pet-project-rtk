@@ -8,7 +8,8 @@ const db = require('./db.json');
 server.use(middlewares);
 server.use(router);
 
-// Т.к json-server не поддерживает массивы фильтров, пришлось написать самому
+/** Т.к json-server не поддерживает массивы фильтров, пришлось написать самому */
+
 router.render = (req, res) => {
   const query = req.query;
   const formFilter = query?.form?.split(',');
@@ -22,6 +23,6 @@ router.render = (req, res) => {
   res.jsonp(result);
 };
 
-server.listen(5000, res => {
+server.listen(5000, () => {
   console.log('JSON Server is running');
 });

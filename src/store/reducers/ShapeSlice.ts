@@ -1,5 +1,6 @@
 import { ShapesQuery } from '../../services/ShapesService';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { isShapeShade } from '../../utils/typeGuards/shapeShade';
 
 export type Filters = {
   color?: Record<string, boolean>;
@@ -27,8 +28,8 @@ export const shapeSlice = createSlice({
 
       if (serializeQuery.length) {
         serializeQuery.forEach(([queryKey, queryValue]) => {
-          if (queryKey === 'shade') {
-            state.filters.shade = queryValue as Filters['shade'];
+          if (queryKey === 'shade' && isShapeShade(queryValue)) {
+            state.filters.shade = queryValue;
           }
           if (queryKey === 'color') {
             state.filters.color = {};
@@ -55,19 +56,8 @@ export const shapeSlice = createSlice({
     setParsedFilters(state, _action: PayloadAction<string>) {
       const result: ShapesQuery = {};
 
-      if (state.filters.color) {
-        result.color = [];
-        Object.entries(state.filters.color).forEach(i => {
-          result.color?.push(i[0]);
-        });
-      }
-
-      if (state.filters.form) {
-        result.form = [];
-        Object.entries(state.filters.form).forEach(i => {
-          result.form?.push(i[0]);
-        });
-      }
+      if (state.filters.color) result.color = Object.entries(state.filters.color).map(([color]) => color);
+      if (state.filters.form) result.form = Object.entries(state.filters.form).map(([form]) => form);
 
       if (state.filters.shade) {
         if (state.filters.shade === 'all') delete result.dark;
