@@ -22,11 +22,11 @@ export const shapeSlice = createSlice({
   initialState: initialState,
   reducers: {
     setFilters(state, action: PayloadAction<URLSearchParams>) {
-      const serializeQuery = Object.fromEntries([...action.payload]);
+      const serializeQuery = [...action.payload];
       state.filters = {};
 
-      if (Object.entries(serializeQuery).length) {
-        Object.entries(serializeQuery).forEach(([queryKey, queryValue]) => {
+      if (serializeQuery.length) {
+        serializeQuery.forEach(([queryKey, queryValue]) => {
           if (queryKey === 'shade') {
             state.filters.shade = queryValue as Filters['shade'];
           }

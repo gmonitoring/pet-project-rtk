@@ -76,7 +76,7 @@ export const ShapesDrawer: FC = () => {
 
   useEffect(() => {
     if (!skip) refetch();
-  }, [searchParams, refetch]);
+  }, [skip, searchParams, refetch]);
 
   const handleDarkChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const radioName = event.target.name as Filters['shade'];
