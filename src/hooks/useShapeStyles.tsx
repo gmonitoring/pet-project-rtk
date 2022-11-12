@@ -1,6 +1,6 @@
 import { useTheme } from '@mui/material/styles';
-import { Shape } from '../services/ShapesService';
-import { isPaletteColor } from '../utils/typeGuards/shapeColors';
+import { Shape } from "services/ShapesService";
+import { isPaletteColor } from "utils/typeGuards/shapeColors";
 
 type UseMyColorsResult = {
   backgroundColor: string;

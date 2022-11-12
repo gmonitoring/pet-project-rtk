@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import { Box } from '@mui/material';
-import { Shape } from '../../../services/ShapesService';
-import { useShapeStyles } from '../../../hooks/useShapeStyles';
+import { useShapeStyles } from "hooks/useShapeStyles";
+import { Shape } from "services/ShapesService";
 
 export const Circle: FC<Shape> = shape => {
   const shapeStyles = useShapeStyles(shape);

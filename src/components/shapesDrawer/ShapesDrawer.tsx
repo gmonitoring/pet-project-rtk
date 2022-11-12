@@ -17,14 +17,14 @@ import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { Checkbox, FormControlLabel, Grid, Radio, RadioGroup, TextField } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
-import { shapesAPI } from '../../services/ShapesService';
-import { AppBar, DrawerHeader, drawerWidth, Main } from './DrawerStyledComponents';
+import { shapesAPI } from 'services/ShapesService';
+import { AppBar, DrawerHeader, drawerWidth, Main } from 'components/shapesDrawer/DrawerStyledComponents';
+import { useAppDispatch, useAppSelector } from 'hooks/redux';
 import { useSearchParams } from 'react-router-dom';
-import { Square } from '../shapes/Square/Square';
-import { Circle } from '../shapes/Circle/Circle';
-import { useAppDispatch, useAppSelector } from '../../hooks/redux';
-import { shapeSlice } from '../../store/reducers/ShapeSlice';
-import { isShapeShade } from '../../utils/typeGuards/shapeShade';
+import { Square } from 'components/shapes/Square/Square';
+import { Circle } from 'components/shapes/Circle/Circle';
+import { shapeSlice } from 'store/reducers/ShapeSlice';
+import { isShapeShade } from 'utils/typeGuards/shapeShade';
 
 // TODO Данный код для "верстки" SharpsDrawer и в файле DrawerStyledComponents по большей
 // части взят из документации MUI https://mui.com/material-ui/react-drawer/

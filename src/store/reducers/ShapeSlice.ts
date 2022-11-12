@@ -1,6 +1,6 @@
-import { ShapesQuery } from '../../services/ShapesService';
+import { ShapesQuery } from "services/ShapesService";
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { isShapeShade } from '../../utils/typeGuards/shapeShade';
+import { isShapeShade } from "utils/typeGuards/shapeShade";
 
 export type Filters = {
   color?: Record<string, boolean>;

@@ -1,4 +1,4 @@
-import { palette } from "../../config/theme";
+import { palette } from "config/theme";
 import { Palette } from "@mui/material/styles";
 
 type PaletteShapesKeys = keyof Palette['shapes'];
