@@ -1,21 +1,15 @@
-import { ShapesQuery } from "services/ShapesService";
+import { ShapesQuery } from 'services/ShapesService';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { isShapeShade } from "utils/typeGuards/shapeShade";
+import { isShapeShade } from 'utils/typeGuards/shapeShade';
 
-export type Filters = {
-  color?: Record<string, boolean>;
-  form?: Record<string, boolean>;
-  shade?: 'all' | 'dark' | 'light';
-};
+export type Shade = 'all' | 'dark' | 'light';
 
 type ShapeSlice = {
-  filters: Filters;
-  parsedFilters: ShapesQuery;
+  filters: ShapesQuery;
 };
 
 const initialState: ShapeSlice = {
   filters: {},
-  parsedFilters: {},
 };
 
 export const shapeSlice = createSlice({
@@ -23,49 +17,28 @@ export const shapeSlice = createSlice({
   initialState: initialState,
   reducers: {
     setFilters(state, action: PayloadAction<URLSearchParams>) {
-      const serializeQuery = [...action.payload];
-      state.filters = {};
-
-      if (serializeQuery.length) {
-        serializeQuery.forEach(([queryKey, queryValue]) => {
-          if (queryKey === 'shade' && isShapeShade(queryValue)) {
-            state.filters.shade = queryValue;
-          }
-          if (queryKey === 'color') {
-            state.filters.color = {};
-
-            queryValue.split(',').forEach(queryValueItem => {
-              if (state.filters.color) {
-                state.filters.color[queryValueItem] = true;
-              }
-            });
-          }
-          if (queryKey === 'form') {
-            state.filters.form = {};
-
-            queryValue.split(',').forEach(queryValueItem => {
-              if (state.filters.form) {
-                state.filters.form[queryValueItem] = true;
-              }
-            });
-          }
-        });
-      }
-    },
-
-    setParsedFilters(state, _action: PayloadAction<string>) {
       const result: ShapesQuery = {};
+      const serializeQuery = [...action.payload];
 
-      if (state.filters.color) result.color = Object.entries(state.filters.color).map(([color]) => color);
-      if (state.filters.form) result.form = Object.entries(state.filters.form).map(([form]) => form);
+      if (serializeQuery) {
+        const colorIndex: number = serializeQuery.findIndex(([queryName]) => queryName === 'color');
+        const formIndex: number = serializeQuery.findIndex(([queryName]) => queryName === 'form');
+        const darkIndex: number = serializeQuery.findIndex(([queryName]) => queryName === 'shade');
 
-      if (state.filters.shade) {
-        if (state.filters.shade === 'all') delete result.dark;
-        if (state.filters.shade === 'dark') result.dark = true;
-        if (state.filters.shade === 'light') result.dark = false;
+        if (colorIndex >= 0) result.color = serializeQuery[colorIndex][1].split(',');
+        if (formIndex >= 0) result.form = serializeQuery[formIndex][1].split(',');
+        if (darkIndex >= 0) {
+          const darkValue: string = serializeQuery[darkIndex][1];
+
+          if (isShapeShade(darkValue)) {
+            if (darkValue === 'all') delete result.dark;
+            if (darkValue === 'dark') result.dark = true;
+            if (darkValue === 'light') result.dark = false;
+          }
+        }
       }
 
-      state.parsedFilters = result;
+      state.filters = result;
     },
   },
 });

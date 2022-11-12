@@ -1,8 +1,7 @@
-import { Filters } from "store/reducers/ShapeSlice";
+import { Shade } from 'store/reducers/ShapeSlice';
 
-type ShapeShadeKeys = keyof Filters['shade'];
 const shapeShades = ['all', 'dark', 'light'];
 
-export const isShapeShade = (value: string): value is ShapeShadeKeys => {
+export const isShapeShade = (value: string): value is Shade => {
   return shapeShades.includes(value);
 };

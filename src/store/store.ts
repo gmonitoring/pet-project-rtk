@@ -1,10 +1,10 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
-import { shapesAPI } from "services/ShapesService";
-import userReducer from 'store/reducers/ShapeSlice';
+import { shapesAPI } from 'services/ShapesService';
+import shapesReducer from 'store/reducers/ShapeSlice';
 
 const rootReducer = combineReducers({
   [shapesAPI.reducerPath]: shapesAPI.reducer,
-  userReducer,
+  shapesReducer,
 });
 
 export const setupStore = () => {

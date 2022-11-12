@@ -12,7 +12,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ListItem from '@mui/material/ListItem';
 import SettingsSuggest from '@mui/icons-material/SettingsSuggest';
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useMemo, useState } from 'react';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { Checkbox, FormControlLabel, Grid, Radio, RadioGroup, TextField } from '@mui/material';
@@ -23,7 +23,7 @@ import { useAppDispatch, useAppSelector } from 'hooks/redux';
 import { useSearchParams } from 'react-router-dom';
 import { Square } from 'components/shapes/Square/Square';
 import { Circle } from 'components/shapes/Circle/Circle';
-import { shapeSlice } from 'store/reducers/ShapeSlice';
+import { Shade, shapeSlice } from 'store/reducers/ShapeSlice';
 import { isShapeShade } from 'utils/typeGuards/shapeShade';
 
 // TODO Данный код для "верстки" SharpsDrawer и в файле DrawerStyledComponents по большей
@@ -49,9 +49,13 @@ export const ShapesDrawer: FC = () => {
   const [skip, setSkip] = useState<boolean>(true);
   const [columns, setColumns] = useState<number>(4);
   const [searchParams, setSearchParams]: [URLSearchParams, Function] = useSearchParams();
-  const { filters, parsedFilters } = useAppSelector(state => state.userReducer);
-  const { setFilters, setParsedFilters } = shapeSlice.actions;
+  const { filters } = useAppSelector(state => state.shapesReducer);
+  const { setFilters } = shapeSlice.actions;
   const dispatch = useAppDispatch();
+
+  const serializeQuery = useMemo(() => {
+    return [...searchParams];
+  }, [searchParams]);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -67,11 +71,10 @@ export const ShapesDrawer: FC = () => {
     onSubmit: values => setColumns(Number(values.columns)),
   });
 
-  const { data: shapes, refetch, isLoading, error } = shapesAPI.useFetchShapesQuery(parsedFilters, { skip: skip });
+  const { data: shapes, refetch, isLoading, error } = shapesAPI.useFetchShapesQuery(filters, { skip: skip });
 
   useEffect(() => {
     dispatch(setFilters(searchParams));
-    dispatch(setParsedFilters(''));
     setSkip(false);
   }, []);
 
@@ -82,10 +85,18 @@ export const ShapesDrawer: FC = () => {
   const filtersUpdate = (): void => {
     setSearchParams(searchParams);
     dispatch(setFilters(searchParams));
-    dispatch(setParsedFilters(''));
   };
 
-  const handleDarkChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const getShadeRadioValue = (paramName: string): Shade => {
+    const index: number = serializeQuery.findIndex(([queryName]) => queryName === paramName);
+    if (index >= 0) {
+      const res: string = serializeQuery[index][1];
+      if (isShapeShade(res)) return res;
+    }
+    return 'all';
+  };
+
+  const handleShadeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const radioName = event.target.name;
 
     if (isShapeShade(radioName)) {
@@ -95,27 +106,24 @@ export const ShapesDrawer: FC = () => {
     }
   };
 
-  const handleFormCheck = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const formName = event.target.name;
-    const checked = event.target.checked;
-    let forms = searchParams.get('form')?.split(',') ?? [];
-    if (checked) forms.push(formName);
-    if (!checked) forms = forms.filter(i => i !== formName);
+  const isCheckedState = (paramName: string, value: string): boolean => {
+    const index: number = serializeQuery.findIndex(([queryName]) => queryName === paramName);
 
-    forms.length ? searchParams.set('form', forms.join(',')) : searchParams.delete('form');
-
-    filtersUpdate();
+    if (index >= 0) {
+      return serializeQuery[index][1].split(',').includes(value);
+    }
+    return false;
   };
 
-  const handleColorCheck = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const colorName = event.target.name;
+  const handleCheck = (event: React.ChangeEvent<HTMLInputElement>, propertyName: string) => {
+    const name = event.target.name;
     const checked = event.target.checked;
-    let colors = searchParams.get('color')?.split(',') ?? [];
+    let colors = searchParams.get(propertyName)?.split(',') ?? [];
 
-    if (checked) colors.push(colorName);
-    if (!checked) colors = colors.filter(i => i !== colorName);
+    if (checked) colors.push(name);
+    if (!checked) colors = colors.filter(i => i !== name);
 
-    colors.length ? searchParams.set('color', colors.join(',')) : searchParams.delete('color');
+    colors.length ? searchParams.set(propertyName, colors.join(',')) : searchParams.delete(propertyName);
 
     filtersUpdate();
   };
@@ -158,7 +166,7 @@ export const ShapesDrawer: FC = () => {
         </DrawerHeader>
         <Divider />
         <List>
-          <RadioGroup name="dark-radio-group" value={filters?.shade || 'all'} onChange={handleDarkChange}>
+          <RadioGroup name="shade-radio-group" value={getShadeRadioValue('shade')} onChange={handleShadeChange}>
             <ListItem>
               <FormControlLabel value="all" control={<Radio name="all" />} label="Все" />
             </ListItem>
@@ -177,7 +185,12 @@ export const ShapesDrawer: FC = () => {
               <FormControlLabel
                 name="red"
                 control={
-                  <Checkbox id="red" name="red" checked={filters.color?.red || false} onChange={handleColorCheck} />
+                  <Checkbox
+                    id="red"
+                    name="red"
+                    checked={isCheckedState('color', 'red')}
+                    onChange={e => handleCheck(e, 'color')}
+                  />
                 }
                 label="Красные"
               />
@@ -189,8 +202,8 @@ export const ShapesDrawer: FC = () => {
                   <Checkbox
                     id="green"
                     name="green"
-                    checked={filters.color?.green || false}
-                    onChange={handleColorCheck}
+                    checked={isCheckedState('color', 'green')}
+                    onChange={e => handleCheck(e, 'color')}
                   />
                 }
                 label="Зеленые"
@@ -200,7 +213,12 @@ export const ShapesDrawer: FC = () => {
               <FormControlLabel
                 name="blue"
                 control={
-                  <Checkbox id="blue" name="blue" checked={filters.color?.blue || false} onChange={handleColorCheck} />
+                  <Checkbox
+                    id="blue"
+                    name="blue"
+                    checked={isCheckedState('color', 'blue')}
+                    onChange={e => handleCheck(e, 'color')}
+                  />
                 }
                 label="Синие"
               />
@@ -212,8 +230,8 @@ export const ShapesDrawer: FC = () => {
                   <Checkbox
                     id="yellow"
                     name="yellow"
-                    checked={filters.color?.yellow || false}
-                    onChange={handleColorCheck}
+                    checked={isCheckedState('color', 'yellow')}
+                    onChange={e => handleCheck(e, 'color')}
                   />
                 }
                 label="Желтые"
@@ -262,8 +280,8 @@ export const ShapesDrawer: FC = () => {
                 <Checkbox
                   id="circle"
                   name="circle"
-                  checked={filters.form?.circle || false}
-                  onChange={handleFormCheck}
+                  checked={isCheckedState('form', 'circle')}
+                  onChange={e => handleCheck(e, 'form')}
                 />
               }
               label="Круги"
@@ -272,7 +290,12 @@ export const ShapesDrawer: FC = () => {
           <FormControlLabel
             name="square"
             control={
-              <Checkbox id="square" name="square" checked={filters.form?.square || false} onChange={handleFormCheck} />
+              <Checkbox
+                id="square"
+                name="square"
+                checked={isCheckedState('form', 'square')}
+                onChange={e => handleCheck(e, 'form')}
+              />
             }
             label="Квадраты"
           />
