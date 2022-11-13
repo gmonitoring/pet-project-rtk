@@ -66,7 +66,7 @@ export const ShapesDrawer: FC = () => {
   const [open, setOpen] = useState<boolean>(true);
   const [skip, setSkip] = useState<boolean>(true);
   const [columns, setColumns] = useState<number>(4);
-  const [searchParams, setSearchParams]: [URLSearchParams, Function] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { filters } = useAppSelector(state => state.shapesReducer);
   const { setFilters } = shapeSlice.actions;
   const dispatch = useAppDispatch();
@@ -275,11 +275,11 @@ export const ShapesDrawer: FC = () => {
         </Box>
         <Grid container spacing={2} columns={columns}>
           {!isLoading ? (
-            shapes && shapes?.length > 0 ? (
-              shapes.map((i, index) => (
+            shapes && shapes.length > 0 ? (
+              shapes.map((shape, index) => (
                 <Grid key={index} item xs={1} sx={{ height: 'auto' }}>
-                  {i.form === 'square' && <Square {...i} />}
-                  {i.form === 'circle' && <Circle {...i} />}
+                  {shape.form === 'square' && <Square {...shape} />}
+                  {shape.form === 'circle' && <Circle {...shape} />}
                 </Grid>
               ))
             ) : (
