@@ -25,6 +25,8 @@ import { Square } from 'components/shapes/Square/Square';
 import { Circle } from 'components/shapes/Circle/Circle';
 import { Shade, shapeSlice } from 'store/reducers/ShapeSlice';
 import { isShapeShade } from 'utils/typeGuards/shapeShade';
+import { useDrawer } from 'hooks/useDrawer';
+import { useShapeFilters } from 'hooks/useShapeFilters';
 
 // TODO Данный код для "верстки" SharpsDrawer и в файле DrawerStyledComponents по большей
 // части взят из документации MUI https://mui.com/material-ui/react-drawer/
@@ -63,21 +65,12 @@ const getShadeRadioValue = (serializedQuery: SerializedQuery, paramName: string)
 
 export const ShapesDrawer: FC = () => {
   const theme = useTheme();
-  const [open, setOpen] = useState<boolean>(true);
-  const [skip, setSkip] = useState<boolean>(true);
+  const { handleOpenDrawer, handleCloseDrawer, open } = useDrawer(true);
   const [columns, setColumns] = useState<number>(4);
+  const [skip, setSkip] = useState<boolean>(true);
   const [searchParams, setSearchParams] = useSearchParams();
-  const { filters } = useAppSelector(state => state.shapesReducer);
-  const { setFilters } = shapeSlice.actions;
+  const { filters, setFilters } = useShapeFilters();
   const dispatch = useAppDispatch();
-
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
-
-  const handleDrawerClose = () => {
-    setOpen(false);
-  };
 
   const { handleSubmit, handleChange, values, errors } = useFormik({
     initialValues,
@@ -145,7 +138,7 @@ export const ShapesDrawer: FC = () => {
           <IconButton
             color="inherit"
             aria-label="open drawer"
-            onClick={handleDrawerOpen}
+            onClick={handleOpenDrawer}
             edge="start"
             sx={{ mr: 2, ...(open && { display: 'none' }) }}
           >
@@ -170,7 +163,7 @@ export const ShapesDrawer: FC = () => {
         open={open}
       >
         <DrawerHeader>
-          <IconButton onClick={handleDrawerClose}>
+          <IconButton onClick={handleCloseDrawer}>
             {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
           </IconButton>
         </DrawerHeader>
