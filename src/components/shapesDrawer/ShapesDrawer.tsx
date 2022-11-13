@@ -29,7 +29,7 @@ import { isShapeShade } from 'utils/typeGuards/shapeShade';
 // TODO Данный код для "верстки" SharpsDrawer и в файле DrawerStyledComponents по большей
 // части взят из документации MUI https://mui.com/material-ui/react-drawer/
 // для экономии времени
-
+type SerializedQuery = [string, string][];
 const validationSchema = yup.object({
   columns: yup
     .number()
@@ -43,6 +43,24 @@ const initialValues = {
   columns: 4,
 };
 
+const isCheckedState = (serializedQuery: SerializedQuery, paramName: string, value: string): boolean => {
+  const index: number = serializedQuery.findIndex(([queryName]) => queryName === paramName);
+
+  if (index >= 0) {
+    return serializedQuery[index][1].split(',').includes(value);
+  }
+  return false;
+};
+
+const getShadeRadioValue = (serializedQuery: SerializedQuery, paramName: string): Shade => {
+  const index: number = serializedQuery.findIndex(([queryName]) => queryName === paramName);
+  if (index >= 0) {
+    const res: string = serializedQuery[index][1];
+    if (isShapeShade(res)) return res;
+  }
+  return 'all';
+};
+
 export const ShapesDrawer: FC = () => {
   const theme = useTheme();
   const [open, setOpen] = useState<boolean>(true);
@@ -52,10 +70,6 @@ export const ShapesDrawer: FC = () => {
   const { filters } = useAppSelector(state => state.shapesReducer);
   const { setFilters } = shapeSlice.actions;
   const dispatch = useAppDispatch();
-
-  const serializeQuery = useMemo(() => {
-    return [...searchParams];
-  }, [searchParams]);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -87,14 +101,19 @@ export const ShapesDrawer: FC = () => {
     dispatch(setFilters(searchParams));
   };
 
-  const getShadeRadioValue = (paramName: string): Shade => {
-    const index: number = serializeQuery.findIndex(([queryName]) => queryName === paramName);
-    if (index >= 0) {
-      const res: string = serializeQuery[index][1];
-      if (isShapeShade(res)) return res;
-    }
-    return 'all';
-  };
+  const { red, green, blue, yellow, circle, square, radioValue } = useMemo(() => {
+    const serializedQuery = [...searchParams];
+
+    return {
+      red: isCheckedState(serializedQuery, 'color', 'red'),
+      green: isCheckedState(serializedQuery, 'color', 'green'),
+      blue: isCheckedState(serializedQuery, 'color', 'blue'),
+      yellow: isCheckedState(serializedQuery, 'color', 'yellow'),
+      circle: isCheckedState(serializedQuery, 'form', 'circle'),
+      square: isCheckedState(serializedQuery, 'form', 'square'),
+      radioValue: getShadeRadioValue(serializedQuery, 'shade'),
+    };
+  }, [searchParams]);
 
   const handleShadeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const radioName = event.target.name;
@@ -104,15 +123,6 @@ export const ShapesDrawer: FC = () => {
 
       filtersUpdate();
     }
-  };
-
-  const isCheckedState = (paramName: string, value: string): boolean => {
-    const index: number = serializeQuery.findIndex(([queryName]) => queryName === paramName);
-
-    if (index >= 0) {
-      return serializeQuery[index][1].split(',').includes(value);
-    }
-    return false;
   };
 
   const handleCheck = (event: React.ChangeEvent<HTMLInputElement>, propertyName: string) => {
@@ -166,7 +176,7 @@ export const ShapesDrawer: FC = () => {
         </DrawerHeader>
         <Divider />
         <List>
-          <RadioGroup name="shade-radio-group" value={getShadeRadioValue('shade')} onChange={handleShadeChange}>
+          <RadioGroup name="shade-radio-group" value={radioValue} onChange={handleShadeChange}>
             <ListItem>
               <FormControlLabel value="all" control={<Radio name="all" />} label="Все" />
             </ListItem>
@@ -184,42 +194,21 @@ export const ShapesDrawer: FC = () => {
             <ListItem>
               <FormControlLabel
                 name="red"
-                control={
-                  <Checkbox
-                    id="red"
-                    name="red"
-                    checked={isCheckedState('color', 'red')}
-                    onChange={e => handleCheck(e, 'color')}
-                  />
-                }
+                control={<Checkbox id="red" name="red" checked={red} onChange={e => handleCheck(e, 'color')} />}
                 label="Красные"
               />
             </ListItem>
             <ListItem>
               <FormControlLabel
                 name="green"
-                control={
-                  <Checkbox
-                    id="green"
-                    name="green"
-                    checked={isCheckedState('color', 'green')}
-                    onChange={e => handleCheck(e, 'color')}
-                  />
-                }
+                control={<Checkbox id="green" name="green" checked={green} onChange={e => handleCheck(e, 'color')} />}
                 label="Зеленые"
               />
             </ListItem>
             <ListItem>
               <FormControlLabel
                 name="blue"
-                control={
-                  <Checkbox
-                    id="blue"
-                    name="blue"
-                    checked={isCheckedState('color', 'blue')}
-                    onChange={e => handleCheck(e, 'color')}
-                  />
-                }
+                control={<Checkbox id="blue" name="blue" checked={blue} onChange={e => handleCheck(e, 'color')} />}
                 label="Синие"
               />
             </ListItem>
@@ -227,12 +216,7 @@ export const ShapesDrawer: FC = () => {
               <FormControlLabel
                 name="yellow"
                 control={
-                  <Checkbox
-                    id="yellow"
-                    name="yellow"
-                    checked={isCheckedState('color', 'yellow')}
-                    onChange={e => handleCheck(e, 'color')}
-                  />
+                  <Checkbox id="yellow" name="yellow" checked={yellow} onChange={e => handleCheck(e, 'color')} />
                 }
                 label="Желтые"
               />
@@ -276,27 +260,13 @@ export const ShapesDrawer: FC = () => {
           <Box mr={4}>
             <FormControlLabel
               name="circle"
-              control={
-                <Checkbox
-                  id="circle"
-                  name="circle"
-                  checked={isCheckedState('form', 'circle')}
-                  onChange={e => handleCheck(e, 'form')}
-                />
-              }
+              control={<Checkbox id="circle" name="circle" checked={circle} onChange={e => handleCheck(e, 'form')} />}
               label="Круги"
             />
           </Box>
           <FormControlLabel
             name="square"
-            control={
-              <Checkbox
-                id="square"
-                name="square"
-                checked={isCheckedState('form', 'square')}
-                onChange={e => handleCheck(e, 'form')}
-              />
-            }
+            control={<Checkbox id="square" name="square" checked={square} onChange={e => handleCheck(e, 'form')} />}
             label="Квадраты"
           />
         </Box>
