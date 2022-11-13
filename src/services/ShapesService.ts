@@ -20,11 +20,7 @@ export const shapesAPI = createApi({
     fetchShapes: build.query<Shape[], ShapesQuery>({
       query: (queryArgs = {}) => ({
         url: `/shapes`,
-        params: {
-          form: queryArgs.form,
-          color: queryArgs.color,
-          dark: queryArgs.dark,
-        },
+        params: queryArgs,
       }),
       providesTags: result => ['Shape'],
     }),
