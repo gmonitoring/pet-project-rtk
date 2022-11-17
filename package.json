@@ -20,9 +20,12 @@
   },
   "scripts": {
     "start-server": "node server.js",
-    "dev": "react-scripts start",
+    "prod": "npm-run-all -p -r start-server start-prod",
+    "start-prod": "serve -s build",
+    "dev": "npm-run-all -p -r start-server start-dev",
+    "start-dev": "react-scripts start",
     "init": "npm install",
-    "build": "react-scripts build",
+    "build": "npm run build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "typecheck": "tsc --pretty --noEmit"
@@ -64,6 +67,7 @@
     "eslint-plugin-react-hooks": "^4.3.0",
     "json-server": "^0.17.1",
     "node-sass": "^7.0.3",
+    "npm-run-all": "^4.1.5",
     "react-scripts": "5.0.0",
     "typescript": "^4.5.4"
   }
