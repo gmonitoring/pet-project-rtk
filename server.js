@@ -8,15 +8,13 @@ const db = require('./db.json');
 server.use(middlewares);
 server.use(router);
 
-/** Т.к json-server не поддерживает массивы фильтров, пришлось написать самому */
-
 router.render = (req, res) => {
   const query = req.query;
   const formFilter = query?.form?.split(',');
   const darkFilter = query?.dark ? JSON.parse(query.dark) : null;
   const colorsFilter = query?.color?.split(',');
 
-  let result = formFilter ? db.shapes.filter(item => formFilter.includes(item.form)) : [];
+  let result = formFilter ? db.shapes.filter(item => formFilter.includes(item.form)) : db.shapes;
   if (result.length && darkFilter !== null) result = result.filter(item => item.dark === darkFilter);
   if (result.length && colorsFilter) result = result.filter(item => colorsFilter.includes(item.color));
 

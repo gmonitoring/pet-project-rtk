@@ -19,11 +19,11 @@ import { Checkbox, FormControlLabel, Grid, Radio, RadioGroup, TextField } from '
 import CircularProgress from '@mui/material/CircularProgress';
 import { shapesAPI } from 'services/ShapesService';
 import { AppBar, DrawerHeader, drawerWidth, Main } from 'components/shapesDrawer/DrawerStyledComponents';
-import { useAppDispatch, useAppSelector } from 'hooks/redux';
+import { useAppDispatch } from 'hooks/redux';
 import { useSearchParams } from 'react-router-dom';
 import { Square } from 'components/shapes/Square/Square';
 import { Circle } from 'components/shapes/Circle/Circle';
-import { Shade, shapeSlice } from 'store/reducers/ShapeSlice';
+import { Shade } from 'store/reducers/ShapeSlice';
 import { isShapeShade } from 'utils/typeGuards/shapeShade';
 import { useDrawer } from 'hooks/useDrawer';
 import { useShapeFilters } from 'hooks/useShapeFilters';
@@ -31,7 +31,9 @@ import { useShapeFilters } from 'hooks/useShapeFilters';
 // TODO Данный код для "верстки" SharpsDrawer и в файле DrawerStyledComponents по большей
 // части взят из документации MUI https://mui.com/material-ui/react-drawer/
 // для экономии времени
+
 type SerializedQuery = [string, string][];
+
 const validationSchema = yup.object({
   columns: yup
     .number()
